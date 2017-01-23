@@ -114,6 +114,7 @@ class PListEditor
         $types = array("array", "data", "date", "dict", "real", "integer", "string", "true", "false");
         if($this->createMode){
             $plist = $this->plist->createElement("plist");
+            $plist->setAttribute("version", "1.0");
             $this->plist->appendChild($plist);
             $plist = new PListProperty($this, $plist);
             if(in_array($type, $types)) $plist->addProperty($type, $value);
