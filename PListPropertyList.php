@@ -6,7 +6,7 @@
  * Time: 11:19 AM
  *
  * @author      Muntashir Al-Islam <muntashir.islam96@gmail.com>
- * @version     1.0.0
+ * @version     1.1.0
  * @copyright   2017 (c) Muntashir Al-Islam
  * @license     MIT License
  */
@@ -24,7 +24,7 @@ class PListPropertyList implements \Iterator
         $DOMNodeList;
 
     /** @var \DOMNode[] $nodes */
-    protected $nodes = array(),
+    protected $nodes = [],
         $index = 0,
         $isDict,
         $isRoot,
@@ -39,6 +39,9 @@ class PListPropertyList implements \Iterator
         $this->_sanitize();
     }
 
+    /**
+     * @return int
+     */
     public function length(){
         return count($this->nodes);
     }
@@ -98,9 +101,9 @@ class PListPropertyList implements \Iterator
     protected function _sanitize(){
         if($this->isDict) array_push($this->types, "key");
         if($this->isRoot) array_push($this->types, "plist");
-        /** @var \DOMNode $node */
-        foreach($this->DOMNodeList as $node){
-            if(in_array($node->nodeName, $this->types)) array_push($this->nodes, $node);
+        /** @var \DOMNode $DOMNode */
+        foreach($this->DOMNodeList as $DOMNode){
+            if(in_array($DOMNode->nodeName, $this->types)) array_push($this->nodes, $DOMNode);
         }
     }
 }

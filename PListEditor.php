@@ -6,7 +6,7 @@
  * Time: 8:24 PM
  *
  * @author      Muntashir Al-Islam <muntashir.islam96@gmail.com>
- * @version     1.0.0
+ * @version     1.1.0
  * @copyright   2017 (c) All rights reserved
  * @license     MIT License
  */

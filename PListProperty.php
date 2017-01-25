@@ -6,7 +6,7 @@
  * Time: 12:04 PM
  *
  * @author      Muntashir Al-Islam <muntashir.islam96@gmail.com>
- * @version     1.0.0
+ * @version     1.1.0
  * @copyright   2017 (c) Muntashir Al-Islam
  * @license     MIT License
  */
@@ -49,6 +49,46 @@ class PListProperty
         $this->PListEditor = $PListEditor;
         $this->DOMNode     = $DOMNode;
         $this->_checkIfDict();
+    }
+
+    /**
+     * Get a certain property using a key
+     *
+     * NOTE: only applied inside a dict type
+     *
+     * @param string $key
+     * @return null|PListProperty
+     * @since 1.1.0
+     */
+    public function getProperty($key){
+        if(!$this->hasProperties() && $this->type() != self::PL_DICT) return null;
+
+        $innerProperties = $this->innerProperties();
+        foreach($innerProperties as $property){
+            if($property->key() == $key) return $property;
+        }
+        return null;
+    }
+
+    /**
+     * Get a certain property using a index
+     *
+     * NOTE: only applied inside an array type
+     *
+     * @param string $index
+     * @return null|PListProperty
+     * @since 1.1.0
+     */
+    public function getItem($index){
+        if(!$this->hasProperties() && $this->type() != self::PL_ARRAY) return null;
+
+        $innerProperties = $this->innerProperties();
+        $i = 0;
+        foreach($innerProperties as $property){
+            if($index == $i) return $property;
+            $i++;
+        }
+        return null;
     }
 
     /**

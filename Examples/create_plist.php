@@ -6,7 +6,7 @@
  * Time: 9:27 AM
  */
 
-require_once __DIR__."/../PListEditor/PListEditor.php";
+require_once __DIR__."/../PListEditor.php";
 /**
  * create_plist
  *
