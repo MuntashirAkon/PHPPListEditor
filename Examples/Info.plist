@@ -2,11 +2,25 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-      <key>A string</key>
+      <key>AString</key>
       <string>OK</string>
-      <key>An array</key>
+      <key>AnArray</key>
       <array>
           <string>Hello</string>
+          <string>World</string>
       </array>
+      <key>OK</key>
+      <dict>
+          <key>AnInt</key>
+          <integer>123</integer>
+          <key>AString</key>
+          <string>Oh String!</string>
+      </dict>
+      <key>Bool</key>
+      <true/>
+      <key>An integer</key>
+      <integer>12</integer>
+      <key>ARealNumber</key>
+      <real>123.34</real>
   </dict>
 </plist>

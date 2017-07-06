@@ -6,12 +6,16 @@
  * Time: 8:24 PM
  *
  * @author      Muntashir Al-Islam <muntashir.islam96@gmail.com>
- * @version     1.1.0
+ * @version     2.0.0
  * @copyright   2017 (c) All rights reserved
  * @license     MIT License
  */
 
 namespace PListEditor;
+
+require_once __DIR__."/PListProperty.php";
+require_once __DIR__."/PListPropertyList.php";
+
 /**
  * Class PListEditor
  *
@@ -20,23 +24,21 @@ namespace PListEditor;
  *
  * @package PListEditor
  */
-
-require_once __DIR__."/PListProperty.php";
-require_once __DIR__."/PListPropertyList.php";
-
 class PListEditor
 {
-    /** @var \DOMDocument $plist */
+    /** @var \DOMDocument $plist FIXME: should be protected */
     public $plist;
 
     protected $createMode = false,
-        $editMode = false, $fileName;
+              $editMode   = false,
+              $fileName;
 
     /**
      * Read from the given string
      *
      * @param string $string an xml string to be DOM Manipulated
      * @return bool true if the string is a valid xml otherwise false
+     * @since 1.0.0
      */
     public function read($string){
         $this->plist = new \DOMDocument('1.0', 'UTF-8');
@@ -58,6 +60,7 @@ class PListEditor
      *
      * @param string $file Path to the plist file
      * @return bool
+     * @since 1.0.0
      */
     public function readFile($file){
         if(is_readable($file)){                        // Read from file if the file is readable
@@ -70,6 +73,7 @@ class PListEditor
 
     /**
      * Creates a new plist
+     * @since 1.0.0
      */
     public function create(){
         $this->createMode = true;
@@ -85,6 +89,7 @@ class PListEditor
      * @param null $fileName
      * @param bool $sudo For terminal TODO: need further enhance, ie. su or sudo
      * @return bool
+     * @since 1.0.0
      */
     public function save($fileName = null, $sudo = false){
         // save to the file
@@ -109,6 +114,7 @@ class PListEditor
      * @param string|null $type
      * @param string|null $value
      * @return null|PListProperty
+     * @since 1.0.0
      */
     public function root($type = null, $value = null){
         $types = array("array", "data", "date", "dict", "real", "integer", "string", "true", "false");
@@ -143,16 +149,122 @@ class PListEditor
         return null;
     }
 
-    protected function add($type, $key, $value){
-        print_r("key: {$key}\nValue: {$value}\nType: {$type}\n");
-    }
-
     /**
      * Preview the plist file as xml
      *
      * @return string
+     * @since 1.0.0
      */
     public function preview(){
         return $this->plist->saveXML();
     }
+}
+
+/**
+ * Decode a plist file into an associative array or json string
+ *
+ * This function reads the file as string and calls the
+ * \PListEditor\plist_decode() function for the decoding task.
+ *
+ * @see \PListEditor\plist_decode() - Decodes a plist string
+ *
+ * @param string $filename Full path to the plist file
+ * @param bool   $json     If json is preferred as output
+ * @return array|string An associative array or a json string
+ */
+function plist_decode_file($filename, $json = false){
+    return plist_decode(file_get_contents($filename), $json);
+}
+
+/**
+ * Decodes a plist string into an associative array or json string
+ *
+ * NOTE: This does not preserve ALL the data types (ie. Data, Date, etc).
+ *  Don't use this function if type preservation is important.
+ *
+ * @see \PListEditor\plist_decode_file() - Decodes a plist file
+ * @param string $string The plist (xml) string
+ * @param bool   $json   If json is preferred as output
+ * @return array|string
+ * @since 2.0.0
+ */
+function plist_decode($string, $json = false){
+    $result = [];
+    $plist = new PListEditor();
+    $plist->read($string);
+    $root = $plist->root();
+    if($root != null){
+        parse($root, $result);
+    }
+    return $json ? json_encode($result, JSON_PRETTY_PRINT) : $result;
+}
+
+/**
+ * Parse properties of plist_decode
+ *
+ * NOTE: This function should not be used anywhere,
+ *  visit see also for it's uses.
+ *
+ * @see \PListEditor\plist_decode() - Decodes a plist string
+ * @see \PListEditor\plist_decode_file() - Decodes a plist file
+ *
+ * @param PListProperty $property
+ * @param array         $to
+ * @return string
+ * @since 2.0.0
+ */
+function parse($property, &$to){
+    $isDict = $property->hasKey();
+    switch($property->type()){
+        case PListProperty::PL_DICT:
+            if(!$isDict){
+                $target = &$to;
+            }else{
+                $key = $property->key();
+                $to[$key] = [];
+                $target = &$to[$key];
+            }
+            foreach($property->innerProperties() as $innerProperty)
+                parse($innerProperty, $target);
+            break;
+        case PListProperty::PL_ARRAY:
+            if($isDict){
+                $key = $property->key();
+                $to[$key] = [];
+                $target = &$to[$key];
+            }else{
+                $target = &$to;
+            }
+            if($property->hasProperties()){
+                foreach($property->innerProperties() as $innerProperty){
+                    $member = [];
+                    $type = parse($innerProperty, $member);
+                    if($type == PListProperty::PL_DICT)
+                        array_push($target, $member);
+                    else
+                        array_push($target, $member[0]);
+                }
+            }
+            break;
+        case PListProperty::PL_FALSE:
+            if($isDict) $to[$property->key()] = false;
+            else array_push($to, false);
+            break;
+        case PListProperty::PL_TRUE:
+            if($isDict) $to[$property->key()] = true;
+            else array_push($to, true);
+            break;
+        case PListProperty::PL_INTEGER:
+            if($isDict) $to[$property->key()] = (int)$property->value();
+            else array_push($to, (int)$property->value());
+            break;
+        case PListProperty::PL_REAL:
+            if($isDict) $to[$property->key()] = (double)$property->value();
+            else array_push($to, (double)$property->value());
+            break;
+        default:
+            if($isDict) $to[$property->key()] = $property->value();
+            else array_push($to, $property->value());
+    }
+    return $property->type();
 }

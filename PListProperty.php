@@ -6,19 +6,20 @@
  * Time: 12:04 PM
  *
  * @author      Muntashir Al-Islam <muntashir.islam96@gmail.com>
- * @version     1.1.0
+ * @version     2.0.0
  * @copyright   2017 (c) Muntashir Al-Islam
  * @license     MIT License
  */
 
 namespace PListEditor;
+
+
 /**
  * Class PListProperty
  *
  *
  * @package PListEditor
  */
-
 class PListProperty
 {
     const PL_ARRAY = "array",

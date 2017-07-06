@@ -20,11 +20,11 @@ $plist->readFile(__DIR__."/Info.plist");
 $root = $plist->root();
 
 // Add new Properties
-$root->addProperty(PListProperty::PL_INTEGER, 12, "An Integer");
-$root->addProperty(PListProperty::PL_FALSE, null, "A boolean");
+$root->addProperty(PListProperty::PL_INTEGER, 12, "AnInteger");
+$root->addProperty(PListProperty::PL_FALSE, null, "ABoolean");
 
 // Remove a Property
-$root->removeProperty("A string");
+$root->removeProperty("AString");
 
 // Get inner Properties
 echo "Inner Properties:\n";
@@ -38,9 +38,9 @@ if($root->hasProperties()){
 
 // Get a single property
 echo "Get single properties:\n";
-print_r($root->getProperty("An Integer")->value());
+print_r($root->getProperty("AnInteger")->value());
 echo "\n";
-print_r($root->getProperty("An array")->getItem(0)->value());
+print_r($root->getProperty("AnArray")->getItem(0)->value());
 
 // JSON isn't supported
 //$plist->read("{\"wtf\" : 1}");
